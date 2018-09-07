@@ -1,18 +1,18 @@
 package com.stackroute.cvrp.domain;
 
 public class Route {
-	private DateLogistics dataLogistics;
+	private DateLogistics dateLogistics;
 	private Order newOrder;
 	
 	public Route(DateLogistics dataLogistics, Order newOrder) {
-		this.dataLogistics = dataLogistics;
+		this.dateLogistics = dataLogistics;
 		this.newOrder = newOrder;
 	}
 	public DateLogistics getDataLogistics() {
-		return dataLogistics;
+		return dateLogistics;
 	}
 	public void setDataLogistics(DateLogistics dataLogistics) {
-		this.dataLogistics = dataLogistics;
+		this.dateLogistics = dataLogistics;
 	}
 	public Order getNewOrder() {
 		return newOrder;

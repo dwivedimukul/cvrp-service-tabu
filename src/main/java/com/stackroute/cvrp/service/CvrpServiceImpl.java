@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,9 +29,9 @@ import com.stackroute.cvrp.repository.OrderRepository;
 import com.stackroute.cvrp.repository.SlotRepository;
 import com.stackroute.cvrp.repository.VehicleRepository;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
+//import net.minidev.json.JSONArray;
+//import net.minidev.json.JSONObject;
+//import net.minidev.json.parser.JSONParser;
 
 @Service
 @Qualifier("CvrpServiceImpl")
@@ -290,6 +293,7 @@ public class CvrpServiceImpl implements CvrpService {
 				slotId = this.getSlots()[i].getSlotId();
 			}
 			ordersList = this.getAllOrders(slotId);
+            orders=ordersList.toArray(new Order[ordersList.size()]);
 
 			if ((vehiclesArray[vehicleIndex].getVehicleRoute().length) == 0) {
 				vehiclesArray[vehicleIndex].addOrder(orders[0]);
@@ -375,14 +379,14 @@ public class CvrpServiceImpl implements CvrpService {
 				slotId = this.getSlots()[i].getSlotId();
 
 				for (VehIndexFrom = 0; VehIndexFrom < this.getNoOfVehicles(slotId); VehIndexFrom++) {
-					RouteFrom = Arrays.asList(this.vehicles[VehIndexFrom].getVehicleRoute());
+					RouteFrom = Arrays.asList(this.vehiclesArray[VehIndexFrom].getVehicleRoute());
 
 					int RoutFromLength = RouteFrom.size();
 					// System.out.println(RoutFromLength);
 					for (int j = 1; j < RoutFromLength - 1; j++) { // Not possible to move depot!
 
-						for (VehIndexTo = 0; VehIndexTo < this.vehicles.length; VehIndexTo++) {
-							RouteTo = Arrays.asList(this.vehicles[VehIndexTo].getVehicleRoute());
+						for (VehIndexTo = 0; VehIndexTo < this.vehiclesArray.length; VehIndexTo++) {
+							RouteTo = Arrays.asList(this.vehiclesArray[VehIndexTo].getVehicleRoute());
 							int RouteTolength = RouteTo.size();
 							// System.out.println("hey"+RouteTolength);
 							for (int k = 0; (k < RouteTolength - 1); k++) {// Not possible to move after last Depot!
@@ -464,10 +468,10 @@ public class CvrpServiceImpl implements CvrpService {
 				}
 			}
 
-			RouteFrom = Arrays.asList(this.vehicles[SwapRouteFrom].getVehicleRoute());
-			RouteTo = Arrays.asList(this.vehicles[SwapRouteTo].getVehicleRoute());
-			this.vehicles[SwapRouteFrom].setVehicleRoute(null);
-			this.vehicles[SwapRouteTo].setVehicleRoute(null);
+			RouteFrom = Arrays.asList(this.vehiclesArray[SwapRouteFrom].getVehicleRoute());
+			RouteTo = Arrays.asList(this.vehiclesArray[SwapRouteTo].getVehicleRoute());
+			this.vehiclesArray[SwapRouteFrom].setVehicleRoute(null);
+			this.vehiclesArray[SwapRouteTo].setVehicleRoute(null);
 
 			Order SwapNode = RouteFrom.get(SwapIndexA);
 
@@ -497,15 +501,15 @@ public class CvrpServiceImpl implements CvrpService {
 				RouteTo.add(SwapIndexB + 1, SwapNode);
 			}
 
-			this.vehicles[SwapRouteFrom].setVehicleRoute(RouteFrom.toArray(new Order[RouteFrom.size()]));
+			this.vehiclesArray[SwapRouteFrom].setVehicleRoute(RouteFrom.toArray(new Order[RouteFrom.size()]));
 
-			this.vehicles[SwapRouteFrom].setVehicleLoadedCapacity(
-					Integer.toString(Integer.parseInt(this.vehicles[SwapRouteFrom].getVehicleLoadedCapacity())
+			this.vehiclesArray[SwapRouteFrom].setVehicleLoadedCapacity(
+					Integer.toString(Integer.parseInt(this.vehiclesArray[SwapRouteFrom].getVehicleLoadedCapacity())
 							- Integer.parseInt(MovingNodeDemand)));
-			this.vehicles[SwapRouteTo].setVehicleRoute(RouteTo.toArray(new Order[RouteTo.size()]));
+			this.vehiclesArray[SwapRouteTo].setVehicleRoute(RouteTo.toArray(new Order[RouteTo.size()]));
 
-			this.vehicles[SwapRouteTo].setVehicleLoadedCapacity(
-					Integer.toString(Integer.parseInt(this.vehicles[SwapRouteTo].getVehicleLoadedCapacity())
+			this.vehiclesArray[SwapRouteTo].setVehicleLoadedCapacity(
+					Integer.toString(Integer.parseInt(this.vehiclesArray[SwapRouteTo].getVehicleLoadedCapacity())
 							- Integer.parseInt(MovingNodeDemand)));
 
 			PastSolutions.add(this.distance);
@@ -541,7 +545,7 @@ public class CvrpServiceImpl implements CvrpService {
 		for (int i = 0; i < this.getSlots().length; i++) {
 			slotId = this.getSlots()[i].getSlotId();
 			for (int j = 0; j < this.getNoOfVehicles(slotId); j++) {
-				Arrays.asList(vehicles[j].getVehicleRoute()).clear();
+				Arrays.asList(vehiclesArray[j].getVehicleRoute()).clear();
 				if (!Arrays.asList(vehicles[j].getVehicleRoute()).isEmpty()) {
 					int RoutSize = Arrays.asList(vehicles[j].getVehicleRoute()).size();
 					for (int k = 0; k < RoutSize; k++) {

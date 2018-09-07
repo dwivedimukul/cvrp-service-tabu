@@ -14,7 +14,7 @@ public class Order {
 	private String orderDate;
 	private boolean isRouted;
 	private Slots availableSlots;
-	private String selectedSlots;
+	private String selectedSlot;
 
 	public String getOrderId() {
 		return orderId;
@@ -89,11 +89,11 @@ public class Order {
 	}
 
 	public String getSelectedSlots() {
-		return selectedSlots;
+		return selectedSlot;
 	}
 
 	public void setSelectedSlots(String selectedSlots) {
-		this.selectedSlots = selectedSlots;
+		this.selectedSlot = selectedSlots;
 	}
 
 	public Order(String orderId, String orderConsumerName, String orderConsumerAddress, String orderConsumerPhone,
@@ -109,7 +109,7 @@ public class Order {
 		this.orderDate = orderDate;
 		this.isRouted = isRouted;
 		this.availableSlots = availableSlots;
-		this.selectedSlots = selectedSlots;
+		this.selectedSlot = selectedSlots;
 	}
 
 }
