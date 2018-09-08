@@ -55,6 +55,7 @@ public class CvrpServiceImpl implements CvrpService {
 	private Double distance = 0.0;
 	private double BestSolutionCost;
 	private ArrayList<Double> PastSolutions;
+	private Route list;
 
 	@Autowired
 	public CvrpServiceImpl(CvrpRepository cvrpRepository, SlotRepository slotRepo, OrderRepository orderRepository,
@@ -64,17 +65,23 @@ public class CvrpServiceImpl implements CvrpService {
 		this.orderRepository = orderRepository;
 		this.vehicleRepository = vehicleRepository;
 	}
+	
+	@Override
+	public Route getOrderedRoute(Route route) {
+		
+		return null;
+	}
 
 	@Override
-	public Route getJson() {
-		Route list;
-		list = restTemplate.getForObject(url_route, Route.class);
+	public Route getJson(Route route) {
+		this.list=route;
+//		list = restTemplate.getForObject(url_route, Route.class);
 		return list;
 	}
 
 	public Order getNewOrder() {
 		Order newOrder;
-		newOrder = this.getJson().getNewOrder();
+		newOrder = this.getJson(this.list).getNewOrder();
 		return newOrder;
 	}
 
@@ -92,7 +99,7 @@ public class CvrpServiceImpl implements CvrpService {
 
 	public DateLogistics getDateLogistics() {
 		DateLogistics dateLogistics;
-		dateLogistics = this.getJson().getDataLogistics();
+		dateLogistics = this.getJson(this.list).getDataLogistics();
 		return dateLogistics;
 	}
 

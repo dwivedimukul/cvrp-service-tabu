@@ -8,9 +8,10 @@ import com.stackroute.cvrp.exceptions.IllegalLocationMatrixException;
 
 public interface CvrpService {
 
-	public Route getJson();
+	public Route getJson(Route route);
 	public List<Location> getAllLocationsBySlot(String slotId);
 	public Double[][] getDistanceMatrix(String slotId) throws IllegalLocationMatrixException;
+	public Route getOrderedRoute(Route route);
 	
 	
 }
