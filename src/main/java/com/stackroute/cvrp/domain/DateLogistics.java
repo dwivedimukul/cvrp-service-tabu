@@ -4,6 +4,9 @@ public class DateLogistics {
 	private String date;
 	private Slot[] slots;
 
+	public DateLogistics() {
+		
+	}
 	public DateLogistics(String date, Slot[] slots) {
 
 		this.date = date;

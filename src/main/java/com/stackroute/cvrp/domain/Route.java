@@ -4,6 +4,9 @@ public class Route {
 	private DateLogistics dateLogistics;
 	private Order newOrder;
 	
+	public Route() {
+		
+	}
 	public Route(DateLogistics dataLogistics, Order newOrder) {
 		this.dateLogistics = dataLogistics;
 		this.newOrder = newOrder;

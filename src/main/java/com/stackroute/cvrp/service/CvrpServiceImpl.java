@@ -12,10 +12,8 @@ import java.util.Scanner;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.stackroute.cvrp.domain.DateLogistics;
 import com.stackroute.cvrp.domain.Location;
@@ -24,10 +22,6 @@ import com.stackroute.cvrp.domain.Route;
 import com.stackroute.cvrp.domain.Slot;
 import com.stackroute.cvrp.domain.Vehicle;
 import com.stackroute.cvrp.exceptions.IllegalLocationMatrixException;
-import com.stackroute.cvrp.repository.CvrpRepository;
-import com.stackroute.cvrp.repository.OrderRepository;
-import com.stackroute.cvrp.repository.SlotRepository;
-import com.stackroute.cvrp.repository.VehicleRepository;
 
 //import net.minidev.json.JSONArray;
 //import net.minidev.json.JSONObject;
@@ -36,12 +30,6 @@ import com.stackroute.cvrp.repository.VehicleRepository;
 @Service
 @Qualifier("CvrpServiceImpl")
 public class CvrpServiceImpl implements CvrpService {
-	RestTemplate restTemplate = new RestTemplate();
-	private String url_route = "http://localhost:8090/api/v1/route";
-	private CvrpRepository cvrpRepository;
-	private SlotRepository slotRepo;
-	private OrderRepository orderRepository;
-	private VehicleRepository vehicleRepository;
 	private DateLogistics dateLogistics;
 	private Slot[] slots;
 	private Vehicle[] vehicles;
@@ -51,26 +39,40 @@ public class CvrpServiceImpl implements CvrpService {
 	private float newFilledCapacity;
 	private float vehicleFilledCapacity;
 	private float vehicleTotalCapacity;
-	private List<Order> vehicleRoute;
 	private Double distance = 0.0;
 	private double BestSolutionCost;
 	private ArrayList<Double> PastSolutions;
 	private Route list;
 
-	@Autowired
-	public CvrpServiceImpl(CvrpRepository cvrpRepository, SlotRepository slotRepo, OrderRepository orderRepository,
-			VehicleRepository vehicleRepository) {
-		this.cvrpRepository = cvrpRepository;
-		this.slotRepo = slotRepo;
-		this.orderRepository = orderRepository;
-		this.vehicleRepository = vehicleRepository;
+	public CvrpServiceImpl() {
+
 	}
-	
+
 	@Override
-	public Route getOrderedRoute(Route route) {
+	public Route getOrderedRoute() {
+		Slot[] slot = this.getSlots();
+		String slotId;
+		List<Location> locationList=new ArrayList<>();
+		Route routeObj=new Route();
+		Vehicle[] vehicleArr;
+		for (int i = 0; i < slot.length; i++) {
+			
+		vehicleArr=this.saveBestSolution();
+		for(int j=0;j<vehicleArr.length;j++) {
+			this.slots[i].setSlotVehicle(vehicleArr);
+		}
+		DateLogistics dateLogistics=new DateLogistics();
+		dateLogistics.setSlots(slot);
 		
-		return null;
+		routeObj.setDataLogistics(dateLogistics);
+			
+//			this.saveBestSolution();
+		}
+
+		return routeObj;
 	}
+
+
 
 	@Override
 	public Route getJson(Route route) {
@@ -546,7 +548,7 @@ public class CvrpServiceImpl implements CvrpService {
 		}
 	}
 
-	public void saveBestSolution() {
+	public Vehicle[] saveBestSolution() {
 		BestSolutionCost = distance;
 		String slotId;
 		for (int i = 0; i < this.getSlots().length; i++) {
@@ -562,6 +564,7 @@ public class CvrpServiceImpl implements CvrpService {
 				}
 			}
 		}
+		return vehiclesArray;
 
 
 

@@ -11,7 +11,7 @@ public interface CvrpService {
 	public Route getJson(Route route);
 	public List<Location> getAllLocationsBySlot(String slotId);
 	public Double[][] getDistanceMatrix(String slotId) throws IllegalLocationMatrixException;
-	public Route getOrderedRoute(Route route);
+	public Route getOrderedRoute();
 	
 	
 }
