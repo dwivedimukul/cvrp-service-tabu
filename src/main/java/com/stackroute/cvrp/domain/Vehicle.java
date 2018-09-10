@@ -6,6 +6,13 @@ import java.util.List;
 
 
 public class Vehicle {
+	@Override
+	public String toString() {
+		return "Vehicle [vehicleId=" + vehicleId + ", vehicleCapacity=" + vehicleCapacity + ", vehicleLoadedCapacity="
+				+ vehicleLoadedCapacity + ", vehicleRouteDuration=" + vehicleRouteDuration
+				+ ", vehicleRouteDurationLimit=" + vehicleRouteDurationLimit + ", vehicleCurrentLocation="
+				+ vehicleCurrentLocation + ", vehicleRoute=" + Arrays.toString(vehicleRoute) + "]";
+	}
 	private String vehicleId;
 	private String vehicleCapacity;
 	private String vehicleLoadedCapacity;
@@ -89,6 +96,12 @@ public class Vehicle {
 		this.vehicleLoadedCapacity += order.getOrderVolume();
 		this.vehicleCurrentLocation=order.getOrderId();
 	}
+
+	public Vehicle() {
+		//super();
+		// TODO Auto-generated constructor stub
+	}
+	
 
 
 }

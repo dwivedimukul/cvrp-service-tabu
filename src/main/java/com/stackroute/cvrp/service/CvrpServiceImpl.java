@@ -1,10 +1,14 @@
 package com.stackroute.cvrp.service;
 
+import static org.hamcrest.CoreMatchers.nullValue;
+
+import java.io.Console;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -49,35 +53,75 @@ public class CvrpServiceImpl implements CvrpService {
 	}
 
 	@Override
-	public Route getOrderedRoute() {
+	public Route getOrderedRoute(Route route) {
+		System.out.println("hello");
+		String slotId = null;
 		Slot[] slot = this.getSlots();
-		String slotId;
-		List<Location> locationList=new ArrayList<>();
-		Route routeObj=new Route();
-		Vehicle[] vehicleArr;
+		Order[] orders = null;
+		Vehicle[] vehicleArr = null;
+		double dist;
+		Route routeObj = new Route();
+		double[][] distanceMatrix = null;
 		for (int i = 0; i < slot.length; i++) {
-			
-		vehicleArr=this.saveBestSolution();
-		for(int j=0;j<vehicleArr.length;j++) {
-			this.slots[i].setSlotVehicle(vehicleArr);
+			slotId = slot[i].getSlotId();
 		}
-		DateLogistics dateLogistics=new DateLogistics();
+		System.out.println("hey");
+		this.getJson(route);
+
+		this.getNewOrder();
+		this.getAllOrders(slotId);
+		this.getDateLogistics();
+		try {
+			distanceMatrix = this.getDistanceMatrix(slotId);
+			orders = (this.getAllOrders(slotId)).toArray(new Order[(this.getAllOrders(slotId)).size()]);
+		} catch (IllegalLocationMatrixException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		dist = this.greedySolution(orders, distanceMatrix);
+		TabuSearch(10, distanceMatrix, dist);
+		for (int j = 0; j < vehicleArr.length; j++) {
+			this.slots[j].setSlotVehicle(vehicleArr);
+		}
+		DateLogistics dateLogistics = new DateLogistics();
 		dateLogistics.setSlots(slot);
-		
-		routeObj.setDataLogistics(dateLogistics);
-			
-//			this.saveBestSolution();
-		}
+
+		routeObj.setDateLogistics(dateLogistics);
+
+		// List<Location> locationList=new ArrayList<>();
+		//
+		//
+		//// Order[] orders;
+		//
+		//// double[][] distanceMatrix;
+		// for (int i = 0; i < slot.length; i++) {
+
+		// vehicleArr=this.saveBestSolution();
+		//
+
+		// this.saveBestSolution();
+
+		// try {
+		// distanceMatrix=this.getDistanceMatrix(slotId);
+		// orders=(Order[]) this.getAllOrders(slotId).toArray();
+		// dist=greedySolution(orders, distanceMatrix);
+		//
+		//
+		//
+		//
+		// } catch (IllegalLocationMatrixException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 		return routeObj;
 	}
 
-
-
 	@Override
 	public Route getJson(Route route) {
-		this.list=route;
-//		list = restTemplate.getForObject(url_route, Route.class);
+		this.list = route;
+		System.out.println("hiiiiii" + this.list);
+		// list = restTemplate.getForObject(url_route, Route.class);
 		return list;
 	}
 
@@ -101,7 +145,7 @@ public class CvrpServiceImpl implements CvrpService {
 
 	public DateLogistics getDateLogistics() {
 		DateLogistics dateLogistics;
-		dateLogistics = this.getJson(this.list).getDataLogistics();
+		dateLogistics = this.getJson(this.list).getDateLogistics();
 		return dateLogistics;
 	}
 
@@ -116,7 +160,7 @@ public class CvrpServiceImpl implements CvrpService {
 		Slot[] slots = this.getSlots();
 		Vehicle[] vehicles;
 		String id;
-		List<Order> orders;
+		List<Order> orders=new ArrayList<>();
 		Location location;
 		List<Location> locations = new ArrayList<>();
 		Location newOrderLocation = this.getNewOrderLocation();
@@ -124,16 +168,23 @@ public class CvrpServiceImpl implements CvrpService {
 		for (int i = 0; i < slots.length; i++) {
 			id = slots[i].getSlotId();
 			if (slotId == id) {
-			vehicles = slots[i].getSlotVehicle();
-			for (int j = 0; j < vehicles.length; j++) {
-				orders = Arrays.asList(vehicles[j].getVehicleRoute());
-				for (int k = 0; k < orders.size(); k++) {
-					location = orders.get(k).getOrderLocation();
-					locations.add(location);
+				vehicles = slots[i].getSlotVehicle();
+				for (int j = 0; j < vehicles.length; j++) {
+					if (vehicles[j].getVehicleRoute() == null) {
+						// orders=Collections.<Order>emptyList();
+						// orders=null;
+						orders.add(null);
+					} 
+					else {
+					orders = Arrays.asList(vehicles[j].getVehicleRoute());
+					for (int k = 0; k < orders.size(); k++) {
+						location = orders.get(k).getOrderLocation();
+						locations.add(location);
+					}
+					}
 				}
-			}
 
-		}
+			}
 		}
 		locations.add(newOrderLocation);
 		return locations;
@@ -142,25 +193,58 @@ public class CvrpServiceImpl implements CvrpService {
 	public List<Order> getAllOrders(String slotId) {
 		Slot[] slots = this.getSlots();
 		Vehicle[] vehicles;
-		List<Order> orders = new ArrayList<>();
+		// List<Order> orders= new ArrayList<>();
+		List<Order> orders = new ArrayList<Order>();
+		List<Order> ordersResult = new ArrayList<Order>();
+		Order[] vehicleRoute;
+		Order single;
 		String id;
+		Order[] orderArray;
 
 		for (int i = 0; i < slots.length; i++) {
 			id = slots[i].getSlotId();
 			if (slotId == id) {
 				vehicles = slots[i].getSlotVehicle();
+
 				for (int j = 0; j < vehicles.length; j++) {
-					orders = Arrays.asList(vehicles[j].getVehicleRoute());
+					System.out.println(vehicles[j] + "vehicles");
+					vehicleRoute = vehicles[j].getVehicleRoute();
+
+					if (vehicles[j].getVehicleRoute() == null) {
+						// orders=Collections.<Order>emptyList();
+						// orders=null;
+						orders.add(null);
+					} else {
+						for (int k = 0; k < vehicleRoute.length; k++) {
+							single = vehicleRoute[k];
+							single.setRouted(false);
+//							orders.get(i).setRouted(false);
+							orders.add(single);
+							// orders = new ArrayList<Order>(Arrays.asList(vehicles[j].getVehicleRoute()));
+							// orders=vehicles[j].getVehicleRoute();
+
+						}
+					}
 				}
 
 			}
+			// int n=orders.length;
+			System.out.println("new order" + this.getNewOrder());
+			// System.out.println("orderssdlfkf "+o);
 			orders.add(this.getNewOrder());
+			// orders[n+1]=this.getNewOrder();
+
+			
+
 		}
+		
+
+		
 		return orders;
 	}
 
 	@Override
-	public Double[][] getDistanceMatrix(String slotId) throws IllegalLocationMatrixException {
+	public double[][] getDistanceMatrix(String slotId) throws IllegalLocationMatrixException {
 		String url1 = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?";
 		String origins = "origins=";
 		String destinations = "destinations=";
@@ -168,7 +252,7 @@ public class CvrpServiceImpl implements CvrpService {
 		String inline = "";
 		List<Location> locations;
 		locations = getAllLocationsBySlot(slotId);
-		Double[][] distanceMatrix = new Double[locations.size()][locations.size()];
+		double[][] distanceMatrix = new double[locations.size()][locations.size()];
 		while (!(locations.isEmpty())) {
 			for (int i = 0; i < locations.size(); i++) {
 				for (int j = 0; j < 1; j++) {
@@ -180,6 +264,7 @@ public class CvrpServiceImpl implements CvrpService {
 
 			}
 			String url = url1 + origins + "&" + destinations + "&" + url2;
+			System.out.println("Url is "+url);
 
 			try {
 				URL url3 = new URL(url);
@@ -221,7 +306,7 @@ public class CvrpServiceImpl implements CvrpService {
 							distanceMatrix[str_data1][str_data2] = str_data4;
 							distanceMatrix[str_data2][str_data1] = str_data4;
 						} else
-							distanceMatrix[str_data1][str_data1] = null;
+							distanceMatrix[str_data1][str_data1] = 0;
 					} catch (Exception e) {
 						Long str_data4 = (Long) jsonobj_2.get("travelDistance");
 						// System.out.println(str_data4);
@@ -233,10 +318,9 @@ public class CvrpServiceImpl implements CvrpService {
 
 				}
 				conn.disconnect();
-			} catch (
-
-			Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
+				break;
 			}
 		}
 		return distanceMatrix;
@@ -286,11 +370,12 @@ public class CvrpServiceImpl implements CvrpService {
 		return false;
 	}
 
-	public Double greedySolution(Order[] orders, double[][] distanceMatrix) {
+	public double greedySolution(Order[] orders, double[][] distanceMatrix) {
 
 		double candCost, endCost;
 		int vehicleIndex = 0;
 		String slotId = null;
+		Vehicle[] vehicleArray=this.vehiclesArray;
 
 		while (UnassignedOrderExists(orders)) {
 
@@ -302,16 +387,16 @@ public class CvrpServiceImpl implements CvrpService {
 				slotId = this.getSlots()[i].getSlotId();
 			}
 			ordersList = this.getAllOrders(slotId);
-            orders=ordersList.toArray(new Order[ordersList.size()]);
+			orders = ordersList.toArray(new Order[ordersList.size()]);
 
-			if ((vehiclesArray[vehicleIndex].getVehicleRoute().length) == 0) {
-				vehiclesArray[vehicleIndex].addOrder(orders[0]);
+			if ((vehicleArray[vehicleIndex].getVehicleRoute().length) == 0) {
+				vehicleArray[vehicleIndex].addOrder(orders[0]);
 			}
 			for (int i = 1; i <= ordersList.size(); i++) {
 				if (orders[i].isRouted() == false) {
 					if (this.checkIfFits(orders[i].getOrderVolume())) {
 						candCost = distanceMatrix[Integer
-								.parseInt((vehiclesArray[vehicleIndex].getVehicleCurrentLocation()))][i];
+								.parseInt((vehicleArray[vehicleIndex].getVehicleCurrentLocation()))][i];
 						if (minCost > candCost) {
 							minCost = candCost;
 							orderIndex = i;
@@ -323,13 +408,13 @@ public class CvrpServiceImpl implements CvrpService {
 
 			if (orderObj == null) {
 				// Not a single Customer Fits
-				if (vehicleIndex + 1 < vehiclesArray.length) // We have more vehicles to assign
+				if (vehicleIndex + 1 < vehicleArray.length) // We have more vehicles to assign
 				{
-					if (Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation()) != 0) {// End this
+					if (Integer.parseInt(vehicleArray[vehicleIndex].getVehicleCurrentLocation()) != 0) {// End this
 																											// route
 						endCost = distanceMatrix[Integer
-								.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation())][0];
-						vehiclesArray[vehicleIndex].addOrder(orders[0]);
+								.parseInt(vehicleArray[vehicleIndex].getVehicleCurrentLocation())][0];
+						vehicleArray[vehicleIndex].addOrder(orders[0]);
 						this.distance += endCost;
 					}
 					vehicleIndex = vehicleIndex + 1; // Go to next Vehicle
@@ -341,27 +426,27 @@ public class CvrpServiceImpl implements CvrpService {
 					System.exit(0);
 				}
 			} else {
-				vehiclesArray[vehicleIndex].addOrder(orderObj);// If a fitting Customer is Found
+				vehicleArray[vehicleIndex].addOrder(orderObj);// If a fitting Customer is Found
 				orders[orderIndex].setRouted(true);
 				this.distance += minCost;
 			}
 		}
 
-		endCost = distanceMatrix[Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation())][0];
-		vehiclesArray[vehicleIndex].addOrder(orders[0]);
+		endCost = distanceMatrix[Integer.parseInt(vehicleArray[vehicleIndex].getVehicleCurrentLocation())][0];
+		vehicleArray[vehicleIndex].addOrder(orders[0]);
 		this.distance += endCost;
 		return this.distance;
 
-
 	}
 
-	public void TabuSearch(int TABU_Horizon, double[][] distanceMatrix) {
+	public void TabuSearch(int TABU_Horizon, double[][] distanceMatrix, double distance) {
 
 		// We use 1-0 exchange move
 		List<Order> RouteFrom = new ArrayList<>();
 		List<Order> RouteTo = new ArrayList<>();
 
 		String MovingNodeDemand = null;
+		
 
 		int VehIndexFrom, VehIndexTo;
 		double BestNCost, NeigthboorCost;
@@ -375,7 +460,7 @@ public class CvrpServiceImpl implements CvrpService {
 		int TABU_Matrix[][] = new int[DimensionCustomer + 1][DimensionCustomer + 1];
 
 		String slotId = null;
-		BestSolutionCost = this.distance; // Initial Solution Cost
+		BestSolutionCost = distance; // Initial Solution Cost
 		// System.out.println("Best SOlution cost:"+BestSolutionCost);
 
 		boolean Termination = false;
@@ -548,7 +633,7 @@ public class CvrpServiceImpl implements CvrpService {
 		}
 	}
 
-	public Vehicle[] saveBestSolution() {
+	public void saveBestSolution() {
 		BestSolutionCost = distance;
 		String slotId;
 		for (int i = 0; i < this.getSlots().length; i++) {
@@ -564,11 +649,8 @@ public class CvrpServiceImpl implements CvrpService {
 				}
 			}
 		}
-		return vehiclesArray;
-
-
+		// return vehiclesArray;
 
 	}
-	
 
 }

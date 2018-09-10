@@ -1,11 +1,17 @@
 package com.stackroute.cvrp.domain;
 
+import java.util.Arrays;
+
 public class DateLogistics {
 	private String date;
 	private Slot[] slots;
 
 	public DateLogistics() {
 		
+	}
+	@Override
+	public String toString() {
+		return "DateLogistics [date=" + date + ", slots=" + Arrays.toString(slots) + "]";
 	}
 	public DateLogistics(String date, Slot[] slots) {
 

@@ -1,9 +1,17 @@
 package com.stackroute.cvrp.domain;
 
+import java.util.Arrays;
+
 public class Slots {
 
 	private boolean[] slotAvailability;
 	private String[] slotCost;
+	
+
+	public Slots() {
+		//super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public Slots(boolean[] slotAvailability, String[] slotCost) {
 
@@ -21,6 +29,12 @@ public class Slots {
 
 	public String[] getSlotCost() {
 		return slotCost;
+	}
+
+	@Override
+	public String toString() {
+		return "Slots [slotAvailability=" + Arrays.toString(slotAvailability) + ", slotCost="
+				+ Arrays.toString(slotCost) + "]";
 	}
 
 	public void setSlotCost(String[] slotCost) {

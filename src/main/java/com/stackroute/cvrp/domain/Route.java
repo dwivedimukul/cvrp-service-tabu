@@ -11,11 +11,15 @@ public class Route {
 		this.dateLogistics = dataLogistics;
 		this.newOrder = newOrder;
 	}
-	public DateLogistics getDataLogistics() {
+	public DateLogistics getDateLogistics() {
 		return dateLogistics;
 	}
-	public void setDataLogistics(DateLogistics dataLogistics) {
-		this.dateLogistics = dataLogistics;
+	public void setDateLogistics(DateLogistics dateLogistics) {
+		this.dateLogistics = dateLogistics;
+	}
+	@Override
+	public String toString() {
+		return "Route [dateLogistics=" + dateLogistics + ", newOrder=" + newOrder + "]";
 	}
 	public Order getNewOrder() {
 		return newOrder;

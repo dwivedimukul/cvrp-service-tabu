@@ -4,6 +4,12 @@ public class Location {
 	private String orderLatitude;
 	private String orderLongitude;
 	
+	
+	public Location() {
+		//super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public Location(String orderLatitude, String orderLongitude) {
 		this.orderLatitude = orderLatitude;
 		this.orderLongitude = orderLongitude;

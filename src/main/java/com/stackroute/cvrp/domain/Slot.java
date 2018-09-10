@@ -6,7 +6,7 @@ public class Slot {
 	public String slotId;
 	public String slotDuration;
 	public String slotStartTime;
-	public String slotEndTIme;
+	public String slotEndTime;
 	public String slotNoOfVehicles;
 	private String slotCost;
 	public Vehicle[] slotVehicle;
@@ -36,11 +36,11 @@ public class Slot {
 	}
 
 	public String getSlotEndTIme() {
-		return slotEndTIme;
+		return slotEndTime;
 	}
 
 	public void setSlotEndTIme(String slotEndTIme) {
-		this.slotEndTIme = slotEndTIme;
+		this.slotEndTime = slotEndTIme;
 	}
 
 	public String getSlotNoOfVehicle() {
@@ -54,12 +54,12 @@ public class Slot {
 	@Override
 	public String toString() {
 		return "Slot [slotId=" + slotId + ", slotDuration=" + slotDuration + ", slotStartTime=" + slotStartTime
-				+ ", slotEndTIme=" + slotEndTIme + ", slotNoOfVehicle=" + slotNoOfVehicles + ", slotCost=" + slotCost
+				+ ", slotEndTIme=" + slotEndTime + ", slotNoOfVehicle=" + slotNoOfVehicles + ", slotCost=" + slotCost
 				+ ", slotVehicle=" + Arrays.toString(slotVehicle) + "]";
 	}
 
 	public Slot() {
-		super();
+		//super();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -69,7 +69,7 @@ public class Slot {
 		this.slotId = slotId;
 		this.slotDuration = slotDuration;
 		this.slotStartTime = slotStartTime;
-		this.slotEndTIme = slotEndTIme;
+		this.slotEndTime = slotEndTIme;
 		this.slotNoOfVehicles = slotNoOfVehicle;
 		;
 		this.slotVehicle = slotVehicle;

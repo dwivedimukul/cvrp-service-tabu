@@ -15,6 +15,8 @@ public class Order {
 	private boolean isRouted;
 	private Slots availableSlots;
 	private String selectedSlot;
+	
+	
 
 	public String getOrderId() {
 		return orderId;
@@ -110,6 +112,19 @@ public class Order {
 		this.isRouted = isRouted;
 		this.availableSlots = availableSlots;
 		this.selectedSlot = selectedSlots;
+	}
+
+	@Override
+	public String toString() {
+		return "Order [orderId=" + orderId + ", orderConsumerName=" + orderConsumerName + ", orderConsumerAddress="
+				+ orderConsumerAddress + ", orderConsumerPhone=" + orderConsumerPhone + ", orderLocation="
+				+ orderLocation + ", orderVolume=" + orderVolume + ", orderDate=" + orderDate + ", isRouted=" + isRouted
+				+ ", availableSlots=" + availableSlots + ", selectedSlot=" + selectedSlot + "]";
+	}
+
+	public Order() {
+		//super();
+		// TODO Auto-generated constructor stub
 	}
 
 }

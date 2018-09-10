@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stackroute.cvrp.domain.Route;
+import com.stackroute.cvrp.domain.Slot;
+import com.stackroute.cvrp.domain.Vehicle;
 import com.stackroute.cvrp.service.CvrpService;
 
 @RestController
@@ -26,16 +28,23 @@ public class CvrpController {
 	@RequestMapping(value = "/slots", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<?> giveSlots(@RequestBody Route route){
 		Route newRoute;
+		System.out.println("controller-->");
+		Slot[] op = route.getDateLogistics().getSlots();
+		Vehicle[] v = op[0].getSlotVehicle();
+		System.out.println(op[0].getSlotId());
+		System.out.println(v[0].getVehicleCapacity());
+		//String capacity= v[0].getVehicleCapacity();
+		//System.out.println(capacity);
 		newRoute=cvrpService.getJson(route);
-//		newRoute = cvrpService.getOrderedRoute(route);
+		newRoute = cvrpService.getOrderedRoute(route);
 		return new ResponseEntity<Route>(newRoute,HttpStatus.OK);
 	}
-	@GetMapping("/orderedRoute")
-	public ResponseEntity<?> getAvailableSlots(){
-		Route newRoute;
-		newRoute=cvrpService.getOrderedRoute();
-		return new ResponseEntity<Route>(newRoute,HttpStatus.OK);
-	}
+//	@GetMapping("/orderedRoute")
+//	public ResponseEntity<?> getAvailableSlots(){
+//		Route newRoute;
+//		newRoute=cvrpService.getOrderedRoute();
+//		return new ResponseEntity<Route>(newRoute,HttpStatus.OK);
+//	}
 //	@GetMapping(value="/distancematrix/{slotId}",produces= {"application/json"})
 //	public ResponseEntity<?> getDistanceMatrix(@PathVariable String slotId){
 //		try {
