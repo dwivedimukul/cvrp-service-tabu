@@ -1,14 +1,10 @@
 package com.stackroute.cvrp.service;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-
-import java.io.Console;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -247,27 +243,43 @@ public class CvrpServiceImpl implements CvrpService {
 	public double[][] getDistanceMatrix(String slotId) throws IllegalLocationMatrixException {
 		String url1 = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?";
 		String origins = "origins=";
+		String origin="";
+		int count=0;
 		String destinations = "destinations=";
+		String destination="";
 		String url2 = "travelMode=driving&key=AhT3nVgSlv14w5u2GLYkCrCJm1VWDkBeEGHpG4JFNb13vgktN7OIJEr-5KZZrZah";
 		String inline = "";
 		List<Location> locations;
 		locations = getAllLocationsBySlot(slotId);
-		double[][] distanceMatrix = new double[locations.size()][locations.size()];
+		Double[][] distanceMatrix = new Double[locations.size()][locations.size()];
 		while (!(locations.isEmpty())) {
+			if(count<1) {
 			for (int i = 0; i < locations.size(); i++) {
 				for (int j = 0; j < 1; j++) {
 					String str1 = locations.get(i).getOrderLatitude();
 					String str2 = locations.get(i).getOrderLongitude();
-					origins = origins + str1 + "," + str2 + ";";
-					destinations = destinations + str1 + "," + str2 + ";";
+					if(i<locations.size()-1) {
+					origins = origins + str1 + "," + str2;
+					destinations = destinations + str1 + "," + str2 ;
+					}
+					else {
+						origins = origins + str1 + "," + str2+";";
+						destinations = destinations + str1 + "," + str2+";" ;
+					
 				}
+				}
+				
 
 			}
-			String url = url1 + origins + "&" + destinations + "&" + url2;
+			origin=origins.substring(0, origins.length()-1);
+			destination=destinations.substring(0, destinations.length()-1);
+			String url = url1 + origin + "&" + destination + "&" + url2;
 			System.out.println("Url is "+url);
 
 			try {
-				URL url3 = new URL(url);
+				count++;
+				URL url3 = new URL("https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&destinations=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&travelMode=driving&key=AhT3nVgSlv14w5u2GLYkCrCJm1VWDkBeEGHpG4JFNb13vgktN7OIJEr-5KZZrZah");
+
 				HttpURLConnection conn = (HttpURLConnection) url3.openConnection();
 				conn.setRequestMethod("GET");
 				conn.connect();
@@ -279,6 +291,8 @@ public class CvrpServiceImpl implements CvrpService {
 					while (sc.hasNext()) {
 						inline += sc.nextLine();
 					}
+					System.out.println("\nJSON Response in String format");
+					System.out.println(inline);
 					sc.close();
 				}
 
@@ -299,31 +313,38 @@ public class CvrpServiceImpl implements CvrpService {
 					// System.out.println(str_data3);
 					try {
 						Double str_data4 = (Double) jsonobj_2.get("travelDistance");
-						// System.out.println(str_data4);
+						 System.out.println("str_data 4 1 "+str_data4);
 						Double str_data5 = (Double) jsonobj_2.get("travelDuration");
-						// System.out.println(str_data5);
+						 System.out.println("str_data 5 1"+str_data5);
 						if (str_data1 != str_data2) {
 							distanceMatrix[str_data1][str_data2] = str_data4;
+							//System.out.println("distanceMatrix[str_data1][str_data2]"+distanceMatrix[str_data1][str_data2]);
 							distanceMatrix[str_data2][str_data1] = str_data4;
+							//System.out.println("distanceMatrix[str_data2][str_data1]"+distanceMatrix[str_data2][str_data1]);
 						} else
-							distanceMatrix[str_data1][str_data1] = 0;
+							distanceMatrix[str_data1][str_data1] = null;
 					} catch (Exception e) {
 						Long str_data4 = (Long) jsonobj_2.get("travelDistance");
-						// System.out.println(str_data4);
+						 System.out.println("str_data4"+str_data4);
 						Long str_data5 = (Long) jsonobj_2.get("travelDuration");
-						// System.out.println(str_data5);
+						 System.out.println("str_data5"+str_data5);
 
 					}
 					// System.out.println("\n");
 
 				}
+				for(int i=0;i<distanceMatrix.length;i++) {
+					for(int j=0;j<distanceMatrix.length;j++)
+					System.out.println(i+" "+ j+" "+distanceMatrix[i][j]);
+				}
 				conn.disconnect();
 			} catch (Exception e) {
 				e.printStackTrace();
-				break;
+				//break;
 			}
-		}
-		return distanceMatrix;
+		}}
+		
+		return null;
 	}
 
 	public boolean checkIfFits(String demand) {
