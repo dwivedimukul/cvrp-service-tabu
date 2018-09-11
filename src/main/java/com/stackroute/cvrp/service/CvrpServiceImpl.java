@@ -57,7 +57,7 @@ public class CvrpServiceImpl implements CvrpService {
 		Vehicle[] vehicleArr = null;
 		double dist;
 		Route routeObj = new Route();
-		double[][] distanceMatrix = null;
+		double[][] distanceMatrix = new double[4][4];
 		for (int i = 0; i < slot.length; i++) {
 			slotId = slot[i].getSlotId();
 		}
@@ -65,15 +65,30 @@ public class CvrpServiceImpl implements CvrpService {
 		this.getJson(route);
 
 		this.getNewOrder();
+
 		this.getAllOrders(slotId);
+		System.out.println("hellooo" + this.getAllOrders(slotId));
 		this.getDateLogistics();
-		try {
-			distanceMatrix = this.getDistanceMatrix(slotId);
-			orders = (this.getAllOrders(slotId)).toArray(new Order[(this.getAllOrders(slotId)).size()]);
-		} catch (IllegalLocationMatrixException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		System.out.println("dateLogistics" + this.getDateLogistics());
+
+		System.out.println("hi this is try");
+		distanceMatrix=this.getDistanceMatrix(slotId);
+		System.out.println("hi this is try after distance"+this.getDistanceMatrix(slotId));
+
+		System.out.println("distance length" + distanceMatrix.length);
+		for (int i = 0; i < distanceMatrix.length; i++) {
+			for (int j = 0; j < distanceMatrix.length; j++)
+				System.out.println(i + " " + j + " " + distanceMatrix[i][j]);
 		}
+		orders = (this.getAllOrders(slotId)).toArray(new Order[(this.getAllOrders(slotId)).size()]);
+		System.out.println("this is order" + orders);
+		// try {
+		//
+		// } catch (IllegalLocationMatrixException e1) {
+		// // TODO Auto-generated catch block
+		// System.out.println("this is exception");
+		// e1.printStackTrace();
+		// }
 		dist = this.greedySolution(orders, distanceMatrix);
 		TabuSearch(10, distanceMatrix, dist);
 		for (int j = 0; j < vehicleArr.length; j++) {
@@ -156,7 +171,7 @@ public class CvrpServiceImpl implements CvrpService {
 		Slot[] slots = this.getSlots();
 		Vehicle[] vehicles;
 		String id;
-		List<Order> orders=new ArrayList<>();
+		List<Order> orders = new ArrayList<>();
 		Location location;
 		List<Location> locations = new ArrayList<>();
 		Location newOrderLocation = this.getNewOrderLocation();
@@ -165,18 +180,19 @@ public class CvrpServiceImpl implements CvrpService {
 			id = slots[i].getSlotId();
 			if (slotId == id) {
 				vehicles = slots[i].getSlotVehicle();
+				
 				for (int j = 0; j < vehicles.length; j++) {
+					vehicles[j].setVehicleCurrentLocation("0");
 					if (vehicles[j].getVehicleRoute() == null) {
 						// orders=Collections.<Order>emptyList();
 						// orders=null;
 						orders.add(null);
-					} 
-					else {
-					orders = Arrays.asList(vehicles[j].getVehicleRoute());
-					for (int k = 0; k < orders.size(); k++) {
-						location = orders.get(k).getOrderLocation();
-						locations.add(location);
-					}
+					} else {
+						orders = Arrays.asList(vehicles[j].getVehicleRoute());
+						for (int k = 0; k < orders.size(); k++) {
+							location = orders.get(k).getOrderLocation();
+							locations.add(location);
+						}
 					}
 				}
 
@@ -187,6 +203,7 @@ public class CvrpServiceImpl implements CvrpService {
 	}
 
 	public List<Order> getAllOrders(String slotId) {
+
 		Slot[] slots = this.getSlots();
 		Vehicle[] vehicles;
 		// List<Order> orders= new ArrayList<>();
@@ -214,7 +231,7 @@ public class CvrpServiceImpl implements CvrpService {
 						for (int k = 0; k < vehicleRoute.length; k++) {
 							single = vehicleRoute[k];
 							single.setRouted(false);
-//							orders.get(i).setRouted(false);
+							// orders.get(i).setRouted(false);
 							orders.add(single);
 							// orders = new ArrayList<Order>(Arrays.asList(vehicles[j].getVehicleRoute()));
 							// orders=vehicles[j].getVehicleRoute();
@@ -230,119 +247,126 @@ public class CvrpServiceImpl implements CvrpService {
 			orders.add(this.getNewOrder());
 			// orders[n+1]=this.getNewOrder();
 
-			
-
 		}
-		
 
-		
 		return orders;
 	}
 
 	@Override
-	public double[][] getDistanceMatrix(String slotId) throws IllegalLocationMatrixException {
+	public double[][] getDistanceMatrix(String slotId) {
 		String url1 = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?";
 		String origins = "origins=";
-		String origin="";
-		int count=0;
+		String origin = "";
+		int count = 0;
 		String destinations = "destinations=";
-		String destination="";
+		String destination = "";
 		String url2 = "travelMode=driving&key=AhT3nVgSlv14w5u2GLYkCrCJm1VWDkBeEGHpG4JFNb13vgktN7OIJEr-5KZZrZah";
 		String inline = "";
 		List<Location> locations;
 		locations = getAllLocationsBySlot(slotId);
+		double[][] distanceMatrix = new double[4][4];
 		while (!(locations.isEmpty())) {
-			Double[][] distanceMatrix = new Double[4][4];
-			if(count<1) {
-			for (int i = 0; i < locations.size(); i++) {
-				for (int j = 0; j < 1; j++) {
-					String str1 = locations.get(i).getOrderLatitude();
-					String str2 = locations.get(i).getOrderLongitude();
-					if(i<locations.size()-1) {
-					origins = origins + str1 + "," + str2;
-					destinations = destinations + str1 + "," + str2 ;
+
+			if (count < 1) {
+				for (int i = 0; i < locations.size(); i++) {
+					for (int j = 0; j < 1; j++) {
+						String str1 = locations.get(i).getOrderLatitude();
+						String str2 = locations.get(i).getOrderLongitude();
+						if (i < locations.size() - 1) {
+							origins = origins + str1 + "," + str2;
+							destinations = destinations + str1 + "," + str2;
+						} else {
+							origins = origins + str1 + "," + str2 + ";";
+							destinations = destinations + str1 + "," + str2 + ";";
+
+						}
 					}
+
+				}
+				origin = origins.substring(0, origins.length() - 1);
+				destination = destinations.substring(0, destinations.length() - 1);
+				String url = url1 + origin + "&" + destination + "&" + url2;
+				System.out.println("Url is " + url);
+
+				try {
+					count++;
+					URL url3 = new URL(
+							"https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&destinations=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&travelMode=driving&key=AhT3nVgSlv14w5u2GLYkCrCJm1VWDkBeEGHpG4JFNb13vgktN7OIJEr-5KZZrZah");
+
+					// Double[][] distanceMatrix = new Double[locations.size()][locations.size()];
+					HttpURLConnection conn = (HttpURLConnection) url3.openConnection();
+					conn.setRequestMethod("GET");
+					conn.connect();
+					int responsecode = conn.getResponseCode();
+					if (responsecode != 200)
+						throw new IllegalLocationMatrixException("HttpResponseCode: " + responsecode);
 					else {
-						origins = origins + str1 + "," + str2+";";
-						destinations = destinations + str1 + "," + str2+";" ;
+						Scanner sc = new Scanner(url3.openStream());
+						while (sc.hasNext()) {
+							inline += sc.nextLine();
+						}
+						System.out.println("\nJSON Response in String format");
+						System.out.println(inline);
+						sc.close();
+					}
+
+					JSONParser parse = new JSONParser();
+					JSONObject jobj = (JSONObject) parse.parse(inline);
+					JSONArray jsonarr_1 = (JSONArray) jobj.get("resourceSets");
+					JSONObject jsonobj_1 = (JSONObject) jsonarr_1.get(0);
+					JSONArray jsonarr_2 = (JSONArray) jsonobj_1.get("resources");
+					JSONObject jsonobj_3 = (JSONObject) jsonarr_2.get(0);
+					JSONArray jsonarr_3 = (JSONArray) jsonobj_3.get("results");
+					for (int j = 1; j < jsonarr_3.size(); j++) {
+						JSONObject jsonobj_2 = (JSONObject) jsonarr_3.get(j);
+						int str_data1 = ((Long) jsonobj_2.get("destinationIndex")).intValue();
+						System.out.println(str_data1);
+						int str_data2 = ((Long) jsonobj_2.get("originIndex")).intValue();
+						System.out.println(str_data2);
+						// Long str_data3 = (Long) jsonobj_2.get("totalWalkDuration");
+						// System.out.println(str_data3);
+						try {
+							Double str_data4 = (Double) jsonobj_2.get("travelDistance");
+							System.out.println(str_data4);
+							// Double str_data5 = (Double) jsonobj_2.get("travelDuration");
+							// System.out.println(str_data5);
+							if (str_data1 != str_data2) {
+								distanceMatrix[str_data1][str_data2] = str_data4.doubleValue();
+								distanceMatrix[str_data2][str_data1] = str_data4.doubleValue();
+							} else {
+								distanceMatrix[str_data1][str_data1] = 0;
+							}
+						} catch (Exception e) {
+//							// Long str_data4 = (Long) jsonobj_2.get("travelDistance");
+//							// //System.out.println(str_data4);
+//							// Long str_data5 = (Long) jsonobj_2.get("travelDuration");
+//							// //System.out.println(str_data5);
+//
+						}
+						System.out.println("\n");
+
+					}
+					// for(int i=0;i<distanceMatrix.length;i++) {
+					// for(int j=0;j<distanceMatrix.length;j++)
+					// System.out.println(i+" "+ j+" "+distanceMatrix[i][j]);
+					// }
 					
-				}
-				}
-				
-
-			}
-			origin=origins.substring(0, origins.length()-1);
-			destination=destinations.substring(0, destinations.length()-1);
-			String url = url1 + origin + "&" + destination + "&" + url2;
-			System.out.println("Url is "+url);
-
-			try {
-				count++;
-				URL url3 = new URL("https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&destinations=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&travelMode=driving&key=AhT3nVgSlv14w5u2GLYkCrCJm1VWDkBeEGHpG4JFNb13vgktN7OIJEr-5KZZrZah");
-				//Double[][] distanceMatrix = new Double[locations.size()][locations.size()];
-				HttpURLConnection conn = (HttpURLConnection) url3.openConnection();
-				conn.setRequestMethod("GET");
-				conn.connect();
-				int responsecode = conn.getResponseCode();
-				if (responsecode != 200)
-					throw new IllegalLocationMatrixException("HttpResponseCode: " + responsecode);
-				else {
-					Scanner sc = new Scanner(url3.openStream());
-					while (sc.hasNext()) {
-						inline += sc.nextLine();
-					}
-					System.out.println("\nJSON Response in String format");
-					System.out.println(inline);
-					sc.close();
-				}
-
-				JSONParser parse = new JSONParser();
-				JSONObject jobj = (JSONObject) parse.parse(inline);
-				JSONArray jsonarr_1 = (JSONArray) jobj.get("resourceSets");
-				JSONObject jsonobj_1 = (JSONObject) jsonarr_1.get(0);
-				JSONArray jsonarr_2 = (JSONArray) jsonobj_1.get("resources");
-				JSONObject jsonobj_3 = (JSONObject) jsonarr_2.get(0);
-				JSONArray jsonarr_3 = (JSONArray) jsonobj_3.get("results");
-				for (int j = 1; j < jsonarr_3.size(); j++) {
-					JSONObject jsonobj_2 = (JSONObject) jsonarr_3.get(j);
-					int str_data1 = ((Long) jsonobj_2.get("destinationIndex")).intValue();
-					System.out.println(str_data1);
-					int str_data2 = ((Long) jsonobj_2.get("originIndex")).intValue();
-					System.out.println(str_data2);
-//					Long str_data3 = (Long) jsonobj_2.get("totalWalkDuration");
-//					System.out.println(str_data3);
-					try {
-						Double str_data4 = (Double) jsonobj_2.get("travelDistance");
-						System.out.println(str_data4);
-//						Double str_data5 = (Double) jsonobj_2.get("travelDuration");
-//						System.out.println(str_data5);
-						if (str_data1 != str_data2) {
-							distanceMatrix[str_data1][str_data2] = str_data4;
-							distanceMatrix[str_data2][str_data1]=str_data4;}
-						else {
-							distanceMatrix[str_data1][str_data1] = null;}
-					} catch (Exception e) {
-//						Long str_data4 = (Long) jsonobj_2.get("travelDistance");
-//						//System.out.println(str_data4);
-//						Long str_data5 = (Long) jsonobj_2.get("travelDuration");
-//						//System.out.println(str_data5);
-
-					}
-					System.out.println("\n");
-
-				}
-				for(int i=0;i<distanceMatrix.length;i++) {
-					for(int j=0;j<distanceMatrix.length;j++)
-					System.out.println(i+" "+ j+" "+distanceMatrix[i][j]);
-				}
-				conn.disconnect();
-			} catch (Exception e) {
-				e.printStackTrace();
-				//break;
-			}
-		}}
+					conn.disconnect();
+					return distanceMatrix;
+				} catch (Exception e) {
+					e.printStackTrace();
 		
-		return null;
+					// break;
+				}
+			}
+		
+		}
+		for(int i=0;i<distanceMatrix.length;i++) {
+			 for(int j=0;j<distanceMatrix.length;j++)
+		System.out.println("in distance matrix"+distanceMatrix[i][j]);
+		}
+		
+		return distanceMatrix;
 	}
 
 	public boolean checkIfFits(String demand) {
@@ -353,8 +377,14 @@ public class CvrpServiceImpl implements CvrpService {
 			vehicles = slots[i].getSlotVehicle();
 			for (int j = 0; j < vehicles.length; j++) {
 				totalSlotCapacity += Float.parseFloat(vehicles[j].getVehicleCapacity());
-				filledSlotCapacity += Float.parseFloat(vehicles[j].getVehicleLoadedCapacity());
-				vehicleFilledCapacity = Float.parseFloat(vehicles[j].getVehicleLoadedCapacity());
+				if(vehicles[j].getVehicleLoadedCapacity()==null)
+				{
+					filledSlotCapacity=0;
+					vehicleFilledCapacity=0;
+				}
+				else
+				{filledSlotCapacity += Float.parseFloat(vehicles[j].getVehicleLoadedCapacity());
+				vehicleFilledCapacity = Float.parseFloat(vehicles[j].getVehicleLoadedCapacity());}
 				vehicleTotalCapacity = Float.parseFloat(vehicles[i].getVehicleCapacity());
 			}
 			newFilledCapacity = filledSlotCapacity + Float.parseFloat(demand);
@@ -394,7 +424,7 @@ public class CvrpServiceImpl implements CvrpService {
 		double candCost, endCost;
 		int vehicleIndex = 0;
 		String slotId = null;
-		Vehicle[] vehicleArray=this.vehiclesArray;
+		//Vehicle[] vehicleArray = this.vehiclesArray;
 
 		while (UnassignedOrderExists(orders)) {
 
@@ -404,18 +434,33 @@ public class CvrpServiceImpl implements CvrpService {
 			List<Order> ordersList = new ArrayList<>();
 			for (int i = 0; i < this.getSlots().length; i++) {
 				slotId = this.getSlots()[i].getSlotId();
+				this.vehiclesArray=this.getSlots()[i].getSlotVehicle();
 			}
 			ordersList = this.getAllOrders(slotId);
+//			for(int j=0;j<ordersList.size();j++) {
+			System.out.println("this is orderlist"+ordersList);
+//			}
 			orders = ordersList.toArray(new Order[ordersList.size()]);
-
-			if ((vehicleArray[vehicleIndex].getVehicleRoute().length) == 0) {
-				vehicleArray[vehicleIndex].addOrder(orders[0]);
+			for(int j=0;j<this.vehiclesArray.length;j++) {
+			System.out.println("vehiclesarray"+this.vehiclesArray[j]);
 			}
+			System.out.println("vehicle route"+vehiclesArray[vehicleIndex].getVehicleRoute());
+			if((vehiclesArray[vehicleIndex].getVehicleRoute())==null) {
+//			if ((vehiclesArray[vehicleIndex].getVehicleRoute().length) == 0) {
+//				vehiclesArray[vehicleIndex].seaddOrder(orders[0]);
+//				vehiclesArray[vehicleIndex].addOrder(orders[0]);
+				vehiclesArray[vehicleIndex].setVehicleRoute(orders);
+				System.out.println("vehiclesarray 1 "+vehiclesArray[vehicleIndex]);
+			}
+//			for(int j=0;j<this.vehiclesArray.length;j++) {
+//				System.out.println("vehiclesarray 1 "+this.vehiclesArray[j]);
+//				}
 			for (int i = 1; i <= ordersList.size(); i++) {
+				System.out.println(" this is order"+orders[i]);
 				if (orders[i].isRouted() == false) {
 					if (this.checkIfFits(orders[i].getOrderVolume())) {
 						candCost = distanceMatrix[Integer
-								.parseInt((vehicleArray[vehicleIndex].getVehicleCurrentLocation()))][i];
+								.parseInt((vehiclesArray[vehicleIndex].getVehicleCurrentLocation()))][i];
 						if (minCost > candCost) {
 							minCost = candCost;
 							orderIndex = i;
@@ -427,13 +472,13 @@ public class CvrpServiceImpl implements CvrpService {
 
 			if (orderObj == null) {
 				// Not a single Customer Fits
-				if (vehicleIndex + 1 < vehicleArray.length) // We have more vehicles to assign
+				if (vehicleIndex + 1 < vehiclesArray.length) // We have more vehicles to assign
 				{
-					if (Integer.parseInt(vehicleArray[vehicleIndex].getVehicleCurrentLocation()) != 0) {// End this
-																											// route
+					if (Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation()) != 0) {// End this
+																										// route
 						endCost = distanceMatrix[Integer
-								.parseInt(vehicleArray[vehicleIndex].getVehicleCurrentLocation())][0];
-						vehicleArray[vehicleIndex].addOrder(orders[0]);
+								.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation())][0];
+						vehiclesArray[vehicleIndex].addOrder(orders[0]);
 						this.distance += endCost;
 					}
 					vehicleIndex = vehicleIndex + 1; // Go to next Vehicle
@@ -445,27 +490,27 @@ public class CvrpServiceImpl implements CvrpService {
 					System.exit(0);
 				}
 			} else {
-				vehicleArray[vehicleIndex].addOrder(orderObj);// If a fitting Customer is Found
+				vehiclesArray[vehicleIndex].addOrder(orderObj);// If a fitting Customer is Found
 				orders[orderIndex].setRouted(true);
 				this.distance += minCost;
 			}
 		}
 
-		endCost = distanceMatrix[Integer.parseInt(vehicleArray[vehicleIndex].getVehicleCurrentLocation())][0];
-		vehicleArray[vehicleIndex].addOrder(orders[0]);
+		endCost = distanceMatrix[Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation())][0];
+		vehiclesArray[vehicleIndex].addOrder(orders[0]);
 		this.distance += endCost;
 		return this.distance;
 
 	}
 
 	public void TabuSearch(int TABU_Horizon, double[][] distanceMatrix, double distance) {
+		System.out.println("inside tabu search");
 
 		// We use 1-0 exchange move
 		List<Order> RouteFrom = new ArrayList<>();
 		List<Order> RouteTo = new ArrayList<>();
 
 		String MovingNodeDemand = null;
-		
 
 		int VehIndexFrom, VehIndexTo;
 		double BestNCost, NeigthboorCost;
@@ -640,6 +685,7 @@ public class CvrpServiceImpl implements CvrpService {
 
 		this.vehicles = vehiclesArray;
 		this.distance = BestSolutionCost;
+		System.out.println("this is vehicles" + this.vehicles);
 
 		try {
 			PrintWriter writer = new PrintWriter("PastSolutionsTabu.txt", "UTF-8");
