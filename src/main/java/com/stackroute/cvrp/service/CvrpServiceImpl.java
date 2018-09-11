@@ -251,8 +251,8 @@ public class CvrpServiceImpl implements CvrpService {
 		String inline = "";
 		List<Location> locations;
 		locations = getAllLocationsBySlot(slotId);
-		Double[][] distanceMatrix = new Double[locations.size()][locations.size()];
 		while (!(locations.isEmpty())) {
+			Double[][] distanceMatrix = new Double[4][4];
 			if(count<1) {
 			for (int i = 0; i < locations.size(); i++) {
 				for (int j = 0; j < 1; j++) {
@@ -279,7 +279,7 @@ public class CvrpServiceImpl implements CvrpService {
 			try {
 				count++;
 				URL url3 = new URL("https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&destinations=12.9623455,77.6373747;12.9353915,77.611746;13.0107953,77.5526921;12.9647254,77.719147&travelMode=driving&key=AhT3nVgSlv14w5u2GLYkCrCJm1VWDkBeEGHpG4JFNb13vgktN7OIJEr-5KZZrZah");
-
+				//Double[][] distanceMatrix = new Double[locations.size()][locations.size()];
 				HttpURLConnection conn = (HttpURLConnection) url3.openConnection();
 				conn.setRequestMethod("GET");
 				conn.connect();
@@ -306,31 +306,29 @@ public class CvrpServiceImpl implements CvrpService {
 				for (int j = 1; j < jsonarr_3.size(); j++) {
 					JSONObject jsonobj_2 = (JSONObject) jsonarr_3.get(j);
 					int str_data1 = ((Long) jsonobj_2.get("destinationIndex")).intValue();
-					// System.out.println(str_data1);
+					System.out.println(str_data1);
 					int str_data2 = ((Long) jsonobj_2.get("originIndex")).intValue();
-					// System.out.println(str_data2);
-					Long str_data3 = (Long) jsonobj_2.get("totalWalkDuration");
-					// System.out.println(str_data3);
+					System.out.println(str_data2);
+//					Long str_data3 = (Long) jsonobj_2.get("totalWalkDuration");
+//					System.out.println(str_data3);
 					try {
 						Double str_data4 = (Double) jsonobj_2.get("travelDistance");
-						 System.out.println("str_data 4 1 "+str_data4);
-						Double str_data5 = (Double) jsonobj_2.get("travelDuration");
-						 System.out.println("str_data 5 1"+str_data5);
+						System.out.println(str_data4);
+//						Double str_data5 = (Double) jsonobj_2.get("travelDuration");
+//						System.out.println(str_data5);
 						if (str_data1 != str_data2) {
 							distanceMatrix[str_data1][str_data2] = str_data4;
-							//System.out.println("distanceMatrix[str_data1][str_data2]"+distanceMatrix[str_data1][str_data2]);
-							distanceMatrix[str_data2][str_data1] = str_data4;
-							//System.out.println("distanceMatrix[str_data2][str_data1]"+distanceMatrix[str_data2][str_data1]);
-						} else
-							distanceMatrix[str_data1][str_data1] = null;
+							distanceMatrix[str_data2][str_data1]=str_data4;}
+						else {
+							distanceMatrix[str_data1][str_data1] = null;}
 					} catch (Exception e) {
-						Long str_data4 = (Long) jsonobj_2.get("travelDistance");
-						 System.out.println("str_data4"+str_data4);
-						Long str_data5 = (Long) jsonobj_2.get("travelDuration");
-						 System.out.println("str_data5"+str_data5);
+//						Long str_data4 = (Long) jsonobj_2.get("travelDistance");
+//						//System.out.println(str_data4);
+//						Long str_data5 = (Long) jsonobj_2.get("travelDuration");
+//						//System.out.println(str_data5);
 
 					}
-					// System.out.println("\n");
+					System.out.println("\n");
 
 				}
 				for(int i=0;i<distanceMatrix.length;i++) {
