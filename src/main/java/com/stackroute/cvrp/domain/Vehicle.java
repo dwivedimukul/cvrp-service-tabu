@@ -91,8 +91,14 @@ public class Vehicle {
 	{
 		
 		List<Order> vehicleRouteList=new ArrayList<>();
+		List<Order> vehicleRoute=new ArrayList<>();
+		Order orderObj;
+		
 		vehicleRouteList=Arrays.asList(this.getVehicleRoute());
-		vehicleRouteList.add(order);
+		for(int i=0;i<vehicleRouteList.size();i++) {
+			orderObj=vehicleRouteList.get(i);
+			vehicleRoute.add(orderObj);
+		}
 		this.vehicleLoadedCapacity += order.getOrderVolume();
 		this.vehicleCurrentLocation=order.getOrderId();
 	}

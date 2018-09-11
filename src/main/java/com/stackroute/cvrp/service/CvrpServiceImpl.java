@@ -223,11 +223,9 @@ public class CvrpServiceImpl implements CvrpService {
 					System.out.println(vehicles[j] + "vehicles");
 					vehicleRoute = vehicles[j].getVehicleRoute();
 
-					if (vehicles[j].getVehicleRoute() == null) {
+					if (vehicles[j].getVehicleRoute()!= null) {
 						// orders=Collections.<Order>emptyList();
 						// orders=null;
-						orders.add(null);
-					} else {
 						for (int k = 0; k < vehicleRoute.length; k++) {
 							single = vehicleRoute[k];
 							single.setRouted(false);
@@ -441,8 +439,8 @@ public class CvrpServiceImpl implements CvrpService {
 			System.out.println("this is orderlist"+ordersList);
 //			}
 			orders = ordersList.toArray(new Order[ordersList.size()]);
-			for(int j=0;j<this.vehiclesArray.length;j++) {
-			System.out.println("vehiclesarray"+this.vehiclesArray[j]);
+			for(int k=0;k<this.vehiclesArray.length;k++) {
+			System.out.println("vehiclesarray"+this.vehiclesArray[k]);
 			}
 			System.out.println("vehicle route"+vehiclesArray[vehicleIndex].getVehicleRoute());
 			if((vehiclesArray[vehicleIndex].getVehicleRoute())==null) {
@@ -452,11 +450,13 @@ public class CvrpServiceImpl implements CvrpService {
 				vehiclesArray[vehicleIndex].setVehicleRoute(orders);
 				System.out.println("vehiclesarray 1 "+vehiclesArray[vehicleIndex]);
 			}
+			for(int k=0;k<orders.length;k++) {
+			System.out.println("orders to test"+orders[k]);
+			}
 //			for(int j=0;j<this.vehiclesArray.length;j++) {
 //				System.out.println("vehiclesarray 1 "+this.vehiclesArray[j]);
 //				}
-			for (int i = 1; i <= ordersList.size(); i++) {
-				System.out.println(" this is order"+orders[i]);
+			for (int i = 0; i < orders.length; i++) {
 				if (orders[i].isRouted() == false) {
 					if (this.checkIfFits(orders[i].getOrderVolume())) {
 						candCost = distanceMatrix[Integer
@@ -472,7 +472,7 @@ public class CvrpServiceImpl implements CvrpService {
 
 			if (orderObj == null) {
 				// Not a single Customer Fits
-				if (vehicleIndex + 1 < vehiclesArray.length) // We have more vehicles to assign
+				if (vehicleIndex+1  < vehiclesArray.length) // We have more vehicles to assign
 				{
 					if (Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation()) != 0) {// End this
 																										// route
@@ -494,14 +494,17 @@ public class CvrpServiceImpl implements CvrpService {
 				orders[orderIndex].setRouted(true);
 				this.distance += minCost;
 			}
-		}
+		
 
+		System.out.println("vehicleIndex length"+Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation()));
 		endCost = distanceMatrix[Integer.parseInt(vehiclesArray[vehicleIndex].getVehicleCurrentLocation())][0];
 		vehiclesArray[vehicleIndex].addOrder(orders[0]);
 		this.distance += endCost;
+		}
 		return this.distance;
 
 	}
+
 
 	public void TabuSearch(int TABU_Horizon, double[][] distanceMatrix, double distance) {
 		System.out.println("inside tabu search");
